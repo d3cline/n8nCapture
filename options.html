@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>n8n Capture Settings</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding: 16px;
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+    h1 {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    h2 {
+      font-size: 14px;
+      margin-top: 16px;
+      margin-bottom: 4px;
+    }
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    input[type="text"],
+    input[type="url"],
+    select {
+      width: 100%;
+      padding: 6px 8px;
+      margin-top: 4px;
+      border-radius: 4px;
+      border: 1px solid #1f2933;
+      background: #020617;
+      color: #e5e7eb;
+      box-sizing: border-box;
+      font-size: 13px;
+    }
+    .small {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      border: none;
+      background: #10b981;
+      color: #022c22;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    button:hover {
+      background: #059669;
+    }
+    #testBtn {
+      background: #3b82f6;
+      margin-left: 8px;
+    }
+    #testBtn:hover {
+      background: #2563eb;
+    }
+    #status {
+      margin-top: 12px;
+      font-size: 13px;
+      color: #a5f3fc;
+      min-height: 1.2em;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+    }
+    .help {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: #1e293b;
+      color: #e5e7eb;
+      font-size: 11px;
+      margin-left: 4px;
+      cursor: default;
+    }
+    #authBearerGroup,
+    #authHeaderGroup {
+      margin-top: 8px;
+    }
+    #campaignRows {
+      margin-top: 8px;
+      border-radius: 6px;
+      border: 1px solid #1f2933;
+      padding: 6px;
+      background: #020617;
+    }
+    .campaign-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-top: 6px;
+    }
+    .campaign-row input {
+      font-size: 12px;
+    }
+    .campaign-label-input {
+      flex: 1.3;
+    }
+    .campaign-id-input {
+      flex: 1;
+    }
+    .campaign-remove-btn {
+      background: #ef4444;
+      color: #fee2e2;
+      padding: 4px 6px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-size: 11px;
+    }
+    .campaign-remove-btn:hover {
+      background: #b91c1c;
+    }
+  </style>
+</head>
+<body>
+  <h1>n8n Capture</h1>
+  <p class="small">
+    This extension sends highlighted text + metadata into your <strong>n8n</strong> workflow so you
+    can feed meme generators, blog writers, Sora scripts, FB live topics, etc.
+  </p>
+
+  <h2>1. How to connect to n8n</h2>
+  <ul class="small">
+    <li>Create an n8n workflow with a <strong>Webhook</strong> node.</li>
+    <li>Copy the <strong>Production URL</strong> from that Webhook node.</li>
+    <li>Paste that URL into the field below.</li>
+    <li>(Optional but recommended) Add header auth in n8n and mirror it here.</li>
+  </ul>
+
+  <label for="webhookUrl">
+    n8n Webhook URL
+    <span
+      class="help"
+      title="This should be the URL of your n8n Webhook node, e.g. https://n8n.yourdomain.com/webhook/pain-vault. The extension POSTs JSON here whenever you capture text."
+    >?</span>
+  </label>
+  <input
+    type="url"
+    id="webhookUrl"
+    placeholder="https://n8n.example.com/webhook/pain-vault"
+  />
+  <div class="small">
+    Example payload:
+    <code>{ "source": "reddit", "url": "...", "selected_text": "...", "campaign": "vibe_memes" }</code>
+  </div>
+
+  <label for="authType">
+    Authentication
+    <span
+      class="help"
+      title="Match this to however you secure the Webhook in n8n. If you use Header Auth in n8n, choose 'Bearer token' or 'Custom header' and reuse the same token/header here."
+    >?</span>
+  </label>
+  <select id="authType">
+    <option value="none">None (public webhook)</option>
+    <option value="bearer">Bearer token (Authorization header)</option>
+    <option value="custom_header">Custom header</option>
+  </select>
+  <div class="small">
+    <strong>Tip:</strong> In n8n, open the Webhook node → “Authentication” and set it to match what you choose here.
+  </div>
+
+  <div id="authBearerGroup">
+    <label for="authToken">
+      Bearer token
+      <span
+        class="help"
+        title="Will be sent as: Authorization: Bearer &lt;token&gt;. In n8n, set Webhook Authentication to Header Auth and expect the same token."
+      >?</span>
+    </label>
+    <input
+      type="text"
+      id="authToken"
+      placeholder="e.g. my-super-secret-token"
+    />
+    <div class="small">
+      Sent as <code>Authorization: Bearer &lt;token&gt;</code>
+    </div>
+  </div>
+
+  <div id="authHeaderGroup">
+    <label for="customHeaderName">
+      Custom header name
+      <span
+        class="help"
+        title="For example: x-n8n-secret. In n8n's Webhook node, set Authentication to Header Auth and require this header name."
+      >?</span>
+    </label>
+    <input
+      type="text"
+      id="customHeaderName"
+      placeholder="e.g. x-n8n-secret"
+    />
+    <label for="authTokenHeader">
+      Custom header value
+      <span
+        class="help"
+        title="Shared secret value that must match what you configure in n8n’s Webhook node."
+      >?</span>
+    </label>
+    <input
+      type="text"
+      id="authTokenHeader"
+      placeholder="e.g. my-super-secret-token"
+    />
+    <div class="small">
+      Sent as <code>[header-name]: [value]</code>.
+    </div>
+  </div>
+
+  <h2>2. Campaigns / channels</h2>
+  <p class="small">
+    Campaigns are how you tell n8n <em>what</em> to do with each capture.
+    Each campaign has:
+  </p>
+  <ul class="small">
+    <li><strong>Label</strong>: what you see in the HUD (can include emoji).</li>
+    <li><strong>ID</strong>: what n8n sees in the <code>campaign</code> field (e.g. <code>vibe_memes</code>).</li>
+  </ul>
+
+  <div id="campaignRows"></div>
+  <button id="addCampaignBtn" type="button">+ Add campaign</button>
+  <div class="small">
+    Example setup:
+    <code>🌈 Vibe Code Memes / vibe_memes</code>,
+    <code>📚 Ghost Blog / blog_posts</code>,
+    <code>🎬 Sora Video / sora_video</code>,
+    <code>📡 FB Live Topic / fb_live</code>.
+  </div>
+
+  <div style="margin-top: 16px;">
+    <button id="saveBtn">Save Settings</button>
+    <button id="testBtn" type="button">Test connection</button>
+  </div>
+  <div id="status"></div>
+
+  <script src="options.js"></script>
+</body>
+</html>
